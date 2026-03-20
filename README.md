@@ -141,7 +141,7 @@ Clone this repository and add it to your `load-path`:
          ("\\.idl\\'" . ros-idl-mode))
   :custom
   (ros-build-tool 'colcon)
-  (ros-build-args "--cmake-args -DCMAKE_BUILD_TYPE=Release")
+  (ros-build-args "--symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release")
   (ros-workspace-root "~/ros2_ws")
   :bind
   (("C-c r w" . ros-compile)
