@@ -32,9 +32,8 @@
 ;; for ROS interface definition files:
 ;;
 ;; - `.msg' - message definitions
-;; - `.srv' - service definitions (request/response separated by ---)
-;; - `.action' - action definitions (goal/result/feedback separated
-;;   by ---)
+;; - `.srv' - service definitions
+;; - `.action' - action definitions
 ;;
 ;; Provides `ros-idl-mode', a major mode with syntax highlighting
 ;; for ROS 2 IDL interface files (`.idl').
