@@ -70,6 +70,9 @@ When nil, `ros--find-workspace-root' uses heuristics."
                  (directory :tag "Workspace path"))
   :group 'ros)
 
+(put 'ros-build-tool 'safe-local-variable
+     (lambda (v) (memq v '(colcon catkin-tools catkin-make))))
+(put 'ros-build-args 'safe-local-variable #'stringp)
 (put 'ros-workspace-root 'safe-local-variable
      (lambda (v) (or (null v) (stringp v))))
 
