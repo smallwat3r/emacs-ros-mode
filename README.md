@@ -1,6 +1,6 @@
 # emacs-ros-mode
 
-Emacs support for [ROS](https://www.ros.org/) (Robot Operating System) files.
+Emacs support for [ROS](https://www.ros.org/) (Robot Operating System).
 
 ## Features
 
