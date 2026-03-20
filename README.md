@@ -6,8 +6,10 @@ Emacs support for [ROS](https://www.ros.org/) (Robot Operating System).
 
 ### Syntax highlighting
 
-`ros-msg-mode` is a major mode for ROS interface definition files
-(`.msg`, `.srv`, `.action`) with font-lock support for:
+#### `ros-msg-mode`
+
+Major mode for ROS interface definition files (`.msg`, `.srv`,
+`.action`) with font-lock support for:
 
 | Element               | Example                          |
 |-----------------------|----------------------------------|
@@ -18,8 +20,6 @@ Emacs support for [ROS](https://www.ros.org/) (Robot Operating System).
 | Constants             | `uint8 FOO=1`                    |
 | Section separators    | `---`                            |
 | Comments              | `# ...`                          |
-
-#### Examples
 
 `.msg`
 
@@ -33,8 +33,10 @@ Emacs support for [ROS](https://www.ros.org/) (Robot Operating System).
 
 ![action](images/action.png)
 
-`ros-idl-mode` is a major mode for ROS 2 IDL interface files
-(`.idl`) with font-lock support for:
+#### `ros-idl-mode`
+
+Major mode for ROS 2 IDL interface files (`.idl`) with font-lock
+support for:
 
 | Element               | Example                          |
 |-----------------------|----------------------------------|
@@ -46,8 +48,6 @@ Emacs support for [ROS](https://www.ros.org/) (Robot Operating System).
 | Qualified types       | `geometry_msgs::msg::Point`      |
 | Constants             | `TRUE`, `FALSE`                  |
 | Comments              | `//`, `/* ... */`                |
-
-#### Example
 
 ![idl](images/idl.png)
 
