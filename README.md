@@ -4,24 +4,22 @@ Emacs support for [ROS](https://www.ros.org/) (Robot Operating System) files.
 
 ## Features
 
-**`ros-msg-mode`** - a major mode for ROS interface definition files with
-syntax highlighting for:
+### Syntax highlighting
 
-- Built-in types (`bool`, `int32`, `float64`, `string`, `Header`, etc.)
-- Custom message types (`geometry_msgs/Pose`, `PascalCaseType`)
-- Array notation (`float64[]`, `string[<=10]`)
-- Field names
-- Constants (`uint8 FOO=1`)
-- `---` section separators (used in `.srv` and `.action` files)
-- `#` comments
+`ros-msg-mode` is a major mode for ROS interface definition files
+(`.msg`, `.srv`, `.action`) with font-lock support for:
 
-**Launch files** - `.launch` files are registered to open in `nxml-mode`.
+| Element               | Example                          |
+|-----------------------|----------------------------------|
+| Built-in types        | `bool`, `int32`, `float64`, `string`, `Header` |
+| Custom message types  | `geometry_msgs/Pose`, `PascalCaseType` |
+| Array notation        | `float64[]`, `string[<=10]`      |
+| Field names           | `linear_velocity`                |
+| Constants             | `uint8 FOO=1`                    |
+| Section separators    | `---`                            |
+| Comments              | `# ...`                          |
 
-**Build integration** - compile ROS workspaces from Emacs using
-`ros-compile` (full workspace) or `ros-compile-package` (current
-package only). Supports colcon (ROS2), catkin build, and catkin_make.
-
-## Supported file types
+### File associations
 
 | Extension  | Description        | Mode           |
 |------------|--------------------|----------------|
@@ -30,40 +28,46 @@ package only). Supports colcon (ROS2), catkin build, and catkin_make.
 | `.action`  | Action definition   | `ros-msg-mode` |
 | `.launch`  | Launch file (XML)   | `nxml-mode`    |
 
-## Build integration
+### Build integration
 
-`ros-compile` and `ros-compile-package` run your ROS build tool
-from the workspace root via Emacs' built-in `compile`, giving you
-error navigation and highlighting out of the box.
+Compile ROS workspaces from Emacs with `ros-compile` (full
+workspace) and `ros-compile-package` (current package only).
+
+Both commands use Emacs' built-in `compile`, so you get error
+navigation and highlighting out of the box. Supports colcon
+(ROS2), catkin build, and catkin_make.
+
+| Command               | Description                      |
+|-----------------------|----------------------------------|
+| `ros-compile`         | Build the entire workspace       |
+| `ros-compile-package` | Build only the current package   |
+
+#### Configuration
+
+| Variable             | Description                                       | Default  |
+|----------------------|---------------------------------------------------|----------|
+| `ros-build-tool`     | Build tool (`colcon`, `catkin-tools`, `catkin-make`) | `colcon` |
+| `ros-build-args`     | Extra arguments passed to the build command        | `""`     |
+| `ros-workspace-root` | Explicit workspace path (`nil` for auto-detect)   | `nil`    |
+
+All three are safe as dir-local variables, so they can be set
+per-workspace in `.dir-locals.el`.
+
+#### Workspace detection
 
 The workspace root is auto-detected by walking up from the current
 buffer looking for ROS-specific markers (`.catkin_workspace`,
-`.catkin_tools/`, or `src/` alongside `build/`, `install/`,
-or `log/`). You can also set it explicitly via
-`ros-workspace-root`. The package name is read from the nearest
-`package.xml`.
+`.catkin_tools/`, or `src/` alongside `build/`, `install/`, or
+`log/`). Set `ros-workspace-root` to skip detection.
 
-| Variable             | Description                          | Default  |
-|----------------------|--------------------------------------|----------|
-| `ros-build-tool`     | Build tool (`colcon`, `catkin-tools`, `catkin-make`) | `colcon` |
-| `ros-build-args`     | Extra arguments passed to the build command | `""`     |
-| `ros-workspace-root` | Explicit workspace path (nil for auto-detect) | `nil`    |
+The current package is identified by the nearest `package.xml`.
 
-Example keybindings:
-
-```elisp
-(with-eval-after-load 'ros-mode
-  (keymap-global-set "C-c r w" #'ros-compile)
-  (keymap-global-set "C-c r p" #'ros-compile-package))
-```
-
-### TRAMP
+#### TRAMP
 
 Build commands work over TRAMP (they run on the remote host).
-Auto-detection of the workspace root will be slow over TRAMP due
-to remote file checks on every parent directory. Set
-`ros-workspace-root` in a `.dir-locals.el` at the workspace root
-to skip detection:
+Auto-detection will be slow due to remote file checks on every
+parent directory. Set `ros-workspace-root` in `.dir-locals.el` to
+skip detection:
 
 ```elisp
 ((nil . ((ros-workspace-root . "/ssh:robot:/home/user/catkin_ws"))))
@@ -100,6 +104,14 @@ Clone this repository and add it to your `load-path`:
 ```elisp
 (add-to-list 'load-path "/path/to/emacs-ros-mode")
 (require 'ros-mode)
+```
+
+### Example keybindings
+
+```elisp
+(with-eval-after-load 'ros-mode
+  (keymap-global-set "C-c r w" #'ros-compile)
+  (keymap-global-set "C-c r p" #'ros-compile-package))
 ```
 
 ## License
