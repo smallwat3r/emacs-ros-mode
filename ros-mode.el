@@ -36,6 +36,9 @@
 ;; - `.action' - action definitions (goal/result/feedback separated
 ;;   by ---)
 ;;
+;; Provides `ros-idl-mode', a major mode with syntax highlighting
+;; for ROS 2 IDL interface files (`.idl').
+;;
 ;; Also registers `.launch' files to open in `nxml-mode'.
 ;;
 ;; Build integration via `ros-compile' and `ros-compile-package'
@@ -170,7 +173,7 @@ When PACKAGE is non-nil, build only that package."
     "int8" "uint8" "int16" "uint16"
     "int32" "uint32" "int64" "uint64"
     "float32" "float64"
-    "string" "wstring"
+    "string"
     "time" "duration"
     "Header")
   "ROS built-in primitive and utility types.")
@@ -229,9 +232,94 @@ constants, array notation, and section separators (---)."
   (setq-local font-lock-defaults
               '(ros-msg-font-lock-keywords)))
 
+(defconst ros-idl-keywords
+  '("module" "struct" "enum" "union" "switch" "case"
+    "default" "const" "typedef" "sequence" "map"
+    "abstract" "interface")
+  "IDL keywords for `ros-idl-mode'.")
+
+(defconst ros-idl-types
+  '(;; OMG IDL types
+    "boolean" "octet"
+    "char" "wchar"
+    "short" "long" "float" "double"
+    "unsigned" "signed"
+    "string" "wstring"
+    "any" "void"
+    ;; ROS shorthand types
+    "bool" "byte"
+    "int8" "uint8" "int16" "uint16"
+    "int32" "uint32" "int64" "uint64"
+    "float32" "float64")
+  "IDL built-in types for `ros-idl-mode'.")
+
+(defconst ros-idl-constants
+  '("TRUE" "FALSE")
+  "IDL constant values for `ros-idl-mode'.")
+
+(defconst ros-idl-font-lock-keywords
+  (let ((kw-re (regexp-opt ros-idl-keywords 'symbols))
+        (type-re (regexp-opt ros-idl-types 'symbols))
+        (const-re (regexp-opt ros-idl-constants 'symbols)))
+    `(;; Preprocessor directives
+      (,(concat "^\\s-*#\\s-*"
+                "\\(include\\|ifndef\\|define\\|"
+                "endif\\|ifdef\\|pragma\\)\\b")
+       (0 font-lock-preprocessor-face))
+      ;; #include filename
+      (,(concat "^\\s-*#\\s-*include\\s-+"
+                "\\(\"[^\"]+\"\\|<[^>]+>\\)")
+       (1 font-lock-string-face t))
+      ;; Annotations
+      ("@[a-zA-Z_][a-zA-Z0-9_]*"
+       . font-lock-preprocessor-face)
+      ;; Keywords
+      (,kw-re . font-lock-keyword-face)
+      ;; Constants
+      (,const-re . font-lock-constant-face)
+      ;; Module/struct/enum/union name
+      (,(concat
+         "\\<\\(module\\|struct\\|enum\\|union\\)"
+         "\\s-+\\([a-zA-Z_][a-zA-Z0-9_]*\\)")
+       (2 font-lock-function-name-face))
+      ;; Types
+      (,type-re . font-lock-type-face)
+      ;; Namespace-qualified types: foo::bar::Baz
+      (,(concat
+         "\\<[a-zA-Z_][a-zA-Z0-9_]*"
+         "\\(::[a-zA-Z_][a-zA-Z0-9_]*\\)+")
+       . font-lock-type-face)))
+  "Font-lock keywords for `ros-idl-mode'.")
+
+(defvar ros-idl-mode-syntax-table
+  (let ((st (make-syntax-table)))
+    (modify-syntax-entry ?/ ". 124b" st)
+    (modify-syntax-entry ?* ". 23" st)
+    (modify-syntax-entry ?\n "> b" st)
+    (modify-syntax-entry ?_ "w" st)
+    (modify-syntax-entry ?\" "\"" st)
+    st)
+  "Syntax table for `ros-idl-mode'.")
+
+;;;###autoload
+(define-derived-mode ros-idl-mode prog-mode "ROS-IDL"
+  "Major mode for editing ROS IDL interface files.
+
+Provides syntax highlighting for OMG IDL definitions used
+in ROS 2, including modules, structs, enums, built-in and
+ROS-specific types, annotations, and preprocessor directives."
+  :syntax-table ros-idl-mode-syntax-table
+  (setq-local comment-start "// ")
+  (setq-local comment-end "")
+  (setq-local font-lock-defaults
+              '(ros-idl-font-lock-keywords)))
+
 ;;;###autoload
 (dolist (ext '("\\.msg\\'" "\\.srv\\'" "\\.action\\'"))
   (add-to-list 'auto-mode-alist (cons ext 'ros-msg-mode)))
+
+;;;###autoload
+(add-to-list 'auto-mode-alist '("\\.idl\\'" . ros-idl-mode))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.launch\\'" . nxml-mode))

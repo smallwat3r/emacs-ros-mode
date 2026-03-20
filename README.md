@@ -19,6 +19,20 @@ Emacs support for [ROS](https://www.ros.org/) (Robot Operating System).
 | Section separators    | `---`                            |
 | Comments              | `# ...`                          |
 
+`ros-idl-mode` is a major mode for ROS 2 IDL interface files
+(`.idl`) with font-lock support for:
+
+| Element               | Example                          |
+|-----------------------|----------------------------------|
+| IDL keywords          | `module`, `struct`, `enum`, `typedef` |
+| Built-in types        | `boolean`, `float`, `string`, `wstring` |
+| ROS shorthand types   | `bool`, `int32`, `float64`       |
+| Annotations           | `@key`, `@default`, `@verbatim`  |
+| Preprocessor          | `#include`, `#ifndef`            |
+| Qualified types       | `geometry_msgs::msg::Point`      |
+| Constants             | `TRUE`, `FALSE`                  |
+| Comments              | `//`, `/* ... */`                |
+
 ### File associations
 
 | Extension  | Description        | Mode           |
@@ -26,6 +40,7 @@ Emacs support for [ROS](https://www.ros.org/) (Robot Operating System).
 | `.msg`     | Message definition  | `ros-msg-mode` |
 | `.srv`     | Service definition  | `ros-msg-mode` |
 | `.action`  | Action definition   | `ros-msg-mode` |
+| `.idl`     | IDL definition      | `ros-idl-mode` |
 | `.launch`  | Launch file (XML)   | `nxml-mode`    |
 
 ### Build integration
@@ -84,7 +99,8 @@ Requires Emacs 27.1 or later.
   :ensure (:host github :repo "smallwat3r/emacs-ros-mode")
   :mode (("\\.msg\\'" . ros-msg-mode)
          ("\\.srv\\'" . ros-msg-mode)
-         ("\\.action\\'" . ros-msg-mode)))
+         ("\\.action\\'" . ros-msg-mode)
+         ("\\.idl\\'" . ros-idl-mode)))
 ```
 
 ### use-package + straight.el
@@ -94,7 +110,8 @@ Requires Emacs 27.1 or later.
   :straight (:host github :repo "smallwat3r/emacs-ros-mode")
   :mode (("\\.msg\\'" . ros-msg-mode)
          ("\\.srv\\'" . ros-msg-mode)
-         ("\\.action\\'" . ros-msg-mode)))
+         ("\\.action\\'" . ros-msg-mode)
+         ("\\.idl\\'" . ros-idl-mode)))
 ```
 
 ### Manual
