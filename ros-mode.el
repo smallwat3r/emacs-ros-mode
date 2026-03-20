@@ -37,13 +37,129 @@
 ;;   by ---)
 ;;
 ;; Also registers `.launch' files to open in `nxml-mode'.
+;;
+;; Build integration via `ros-compile' and `ros-compile-package'
+;; supports colcon (ROS2), catkin build, and catkin_make.
 
 ;;; Code:
+
+(require 'cl-lib)
 
 (defgroup ros nil
   "Emacs support for ROS files."
   :group 'languages
   :prefix "ros-")
+
+(defcustom ros-build-tool 'colcon
+  "Build tool to use for ROS workspace compilation.
+Supported values are `colcon', `catkin-tools', and `catkin-make'."
+  :type '(choice (const :tag "colcon build" colcon)
+                 (const :tag "catkin build" catkin-tools)
+                 (const :tag "catkin_make" catkin-make))
+  :group 'ros)
+
+(defcustom ros-build-args ""
+  "Additional arguments passed to the build command."
+  :type 'string
+  :group 'ros)
+
+(defcustom ros-workspace-root nil
+  "Explicit path to the ROS workspace root.
+When nil, `ros--find-workspace-root' uses heuristics."
+  :type '(choice (const :tag "Auto-detect" nil)
+                 (directory :tag "Workspace path"))
+  :group 'ros)
+
+(put 'ros-workspace-root 'safe-local-variable
+     (lambda (v) (or (null v) (stringp v))))
+
+(defun ros--ros-workspace-p (dir)
+  "Return non-nil if DIR looks like a ROS workspace."
+  (or (file-exists-p
+       (expand-file-name ".catkin_workspace" dir))
+      (file-directory-p
+       (expand-file-name ".catkin_tools" dir))
+      (and (file-directory-p
+            (expand-file-name "src" dir))
+           (cl-some
+            (lambda (marker)
+              (file-directory-p
+               (expand-file-name marker dir)))
+            '("build" "install" "log")))))
+
+(defun ros--find-workspace-root ()
+  "Find the ROS workspace root.
+Uses `ros-workspace-root' if set, otherwise walks up from
+`default-directory' looking for ROS-specific markers."
+  (or (and ros-workspace-root
+           (expand-file-name ros-workspace-root))
+      (let ((dir (locate-dominating-file
+                  default-directory
+                  #'ros--ros-workspace-p)))
+        (when dir (expand-file-name dir)))))
+
+(defun ros--find-package-root ()
+  "Find the nearest ROS package root by locating package.xml."
+  (let ((dir (locate-dominating-file
+              default-directory "package.xml")))
+    (when dir (expand-file-name dir))))
+
+(defun ros--package-name ()
+  "Return the name of the current ROS package, or nil."
+  (let ((root (ros--find-package-root)))
+    (when root
+      (let ((pkg-xml (expand-file-name "package.xml" root)))
+        (with-temp-buffer
+          (insert-file-contents pkg-xml)
+          (when (re-search-forward
+                 "<name>\\(.+?\\)</name>" nil t)
+            (match-string 1)))))))
+
+(defun ros--build-command (&optional package)
+  "Return the build command string.
+When PACKAGE is non-nil, build only that package."
+  (let ((pkg-flag
+         (when package
+           (pcase ros-build-tool
+             ('colcon
+              (format " --packages-select %s" package))
+             ('catkin-tools
+              (format " --no-deps %s" package))
+             ('catkin-make
+              (format " --pkg %s" package))))))
+    (concat
+     (pcase ros-build-tool
+       ('colcon "colcon build")
+       ('catkin-tools "catkin build")
+       ('catkin-make "catkin_make"))
+     (or pkg-flag "")
+     (if (string-empty-p ros-build-args)
+         ""
+       (concat " " ros-build-args)))))
+
+;;;###autoload
+(defun ros-compile ()
+  "Compile the entire ROS workspace."
+  (interactive)
+  (let ((ws (ros--find-workspace-root)))
+    (unless ws
+      (user-error "No ROS workspace found"))
+    (let ((default-directory ws))
+      (compile (ros--build-command)))))
+
+;;;###autoload
+(defun ros-compile-package ()
+  "Compile only the current ROS package."
+  (interactive)
+  (let ((ws (ros--find-workspace-root))
+        (pkg (ros--package-name)))
+    (unless ws
+      (user-error "No ROS workspace found"))
+    (unless pkg
+      (user-error
+       "No package.xml found for current buffer"))
+    (let ((default-directory ws))
+      (compile (ros--build-command pkg)))))
 
 (defconst ros-msg-builtin-types
   '("bool"
