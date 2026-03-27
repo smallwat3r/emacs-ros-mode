@@ -71,11 +71,7 @@ Requires Emacs 27.1 or later.
 
 ```elisp
 (use-package ros-face
-  :ensure (:host github :repo "smallwat3r/emacs-ros-face")
-  :mode (("\\.msg\\'" . ros-face-msg-mode)
-         ("\\.srv\\'" . ros-face-msg-mode)
-         ("\\.action\\'" . ros-face-msg-mode)
-         ("\\.idl\\'" . ros-face-idl-mode)))
+  :ensure (:host github :repo "smallwat3r/emacs-ros-face"))
 ```
 
 ### Manual
