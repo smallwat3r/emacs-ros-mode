@@ -1,12 +1,14 @@
-# emacs-ros-mode
+# ros-face
 
-Emacs support for [ROS](https://www.ros.org/) (Robot Operating System).
+Syntax highlighting for [ROS](https://www.ros.org/) (Robot Operating
+System) files in Emacs.
+
+For ROS tooling (build, workspace management, topic/node exploration),
+see [ros.el](https://github.com/DerBeutlin/ros.el).
 
 ## Features
 
-### Syntax highlighting
-
-#### `ros-msg-mode`
+### `ros-face-msg-mode`
 
 Major mode for ROS interface definition files (`.msg`, `.srv`,
 `.action`) with font-lock support for:
@@ -33,7 +35,7 @@ Major mode for ROS interface definition files (`.msg`, `.srv`,
 
 ![action](images/action.png)
 
-#### `ros-idl-mode`
+### `ros-face-idl-mode`
 
 Major mode for ROS 2 IDL interface files (`.idl`) with font-lock
 support for:
@@ -53,58 +55,13 @@ support for:
 
 ### File associations
 
-| Extension  | Description        | Mode           |
-|------------|--------------------|----------------|
-| `.msg`     | Message definition  | `ros-msg-mode` |
-| `.srv`     | Service definition  | `ros-msg-mode` |
-| `.action`  | Action definition   | `ros-msg-mode` |
-| `.idl`     | IDL definition      | `ros-idl-mode` |
-| `.launch`  | Launch file (XML)   | `nxml-mode`    |
-
-### Build integration
-
-Compile ROS workspaces from Emacs with `ros-compile` (full
-workspace) and `ros-compile-package` (current package only).
-
-Both commands use Emacs' built-in `compile`, so you get error
-navigation and highlighting out of the box. Supports colcon
-(ROS2), catkin build, and catkin_make.
-
-| Command               | Description                      |
-|-----------------------|----------------------------------|
-| `ros-compile`         | Build the entire workspace       |
-| `ros-compile-package` | Build only the current package   |
-
-#### Configuration
-
-| Variable             | Description                                       | Default  |
-|----------------------|---------------------------------------------------|----------|
-| `ros-build-tool`     | Build tool (`colcon`, `catkin-tools`, `catkin-make`) | `colcon` |
-| `ros-build-args`     | Extra arguments passed to the build command        | `""`     |
-| `ros-workspace-root` | Explicit workspace path (`nil` for auto-detect)   | `nil`    |
-
-All three are safe as dir-local variables, so they can be set
-per-workspace in `.dir-locals.el`.
-
-#### Workspace detection
-
-The workspace root is auto-detected by walking up from the current
-buffer looking for ROS-specific markers (`.catkin_workspace`,
-`.catkin_tools/`, or `src/` alongside `build/`, `install/`, or
-`log/`). Set `ros-workspace-root` to skip detection.
-
-The current package is identified by the nearest `package.xml`.
-
-#### TRAMP
-
-Build commands work over TRAMP (they run on the remote host).
-Auto-detection will be slow due to remote file checks on every
-parent directory. Set `ros-workspace-root` in `.dir-locals.el` to
-skip detection:
-
-```elisp
-((nil . ((ros-workspace-root . "/ssh:robot:/home/user/catkin_ws"))))
-```
+| Extension  | Description        | Mode                |
+|------------|--------------------|---------------------|
+| `.msg`     | Message definition  | `ros-face-msg-mode` |
+| `.srv`     | Service definition  | `ros-face-msg-mode` |
+| `.action`  | Action definition   | `ros-face-msg-mode` |
+| `.idl`     | IDL definition      | `ros-face-idl-mode` |
+| `.launch`  | Launch file (XML)   | `nxml-mode`         |
 
 ## Installation
 
@@ -113,12 +70,12 @@ Requires Emacs 27.1 or later.
 ### use-package + elpaca
 
 ```elisp
-(use-package ros-mode
-  :ensure (:host github :repo "smallwat3r/emacs-ros-mode")
-  :mode (("\\.msg\\'" . ros-msg-mode)
-         ("\\.srv\\'" . ros-msg-mode)
-         ("\\.action\\'" . ros-msg-mode)
-         ("\\.idl\\'" . ros-idl-mode)))
+(use-package ros-face
+  :ensure (:host github :repo "smallwat3r/emacs-ros-face")
+  :mode (("\\.msg\\'" . ros-face-msg-mode)
+         ("\\.srv\\'" . ros-face-msg-mode)
+         ("\\.action\\'" . ros-face-msg-mode)
+         ("\\.idl\\'" . ros-face-idl-mode)))
 ```
 
 ### Manual
@@ -126,34 +83,8 @@ Requires Emacs 27.1 or later.
 Clone this repository and add it to your `load-path`:
 
 ```elisp
-(add-to-list 'load-path "/path/to/emacs-ros-mode")
-(require 'ros-mode)
-```
-
-### Example configuration
-
-```elisp
-(use-package ros-mode
-  :ensure (:host github :repo "smallwat3r/emacs-ros-mode")
-  :mode (("\\.msg\\'" . ros-msg-mode)
-         ("\\.srv\\'" . ros-msg-mode)
-         ("\\.action\\'" . ros-msg-mode)
-         ("\\.idl\\'" . ros-idl-mode))
-  :custom
-  (ros-build-tool 'colcon)
-  (ros-build-args "--symlink-install --cmake-args -DCMAKE_BUILD_TYPE=Release")
-  (ros-workspace-root "~/ros2_ws")
-  :bind
-  (("C-c r w" . ros-compile)
-   ("C-c r p" . ros-compile-package)))
-```
-
-Per-workspace settings via `.dir-locals.el`:
-
-```elisp
-((nil . ((ros-build-tool . colcon)
-         (ros-build-args . "--symlink-install --parallel-workers 4")
-         (ros-workspace-root . "/home/user/ros2_ws"))))
+(add-to-list 'load-path "/path/to/emacs-ros-face")
+(require 'ros-face)
 ```
 
 ## License
