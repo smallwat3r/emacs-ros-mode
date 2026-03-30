@@ -1,5 +1,7 @@
 # ros-face
 
+[![MELPA](https://melpa.org/packages/ros-face-badge.svg)](https://melpa.org/#/ros-face)
+
 Syntax highlighting for [ROS](https://www.ros.org/) (Robot Operating
 System) files in Emacs.
 
